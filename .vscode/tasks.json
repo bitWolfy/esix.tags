@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "npm",
+            "script": "build",
+            "problemMatcher": ["$eslint-stylish"],
+            "presentation": {
+                "clear": true,
+                "reveal": "silent",
+                "panel": "shared"
+            },
+            "options": {
+                "statusbar": { "hide": false }
+            }
+        },
+        {
+            "label": "start",
+            "type": "npm",
+            "script": "start",
+            "presentation": {
+                "clear": true,
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "options": {
+                "statusbar": { "hide": false }
+            }
+        }
+    ]
+}

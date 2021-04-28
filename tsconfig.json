@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "target": "ES2019",
+        "outDir": "./",
+        "rootDir": "./src/",
+        "removeComments": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "node_modules/@shopify"
+        ],
+        "esModuleInterop": true
+    },
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

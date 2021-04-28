@@ -1,0 +1,29 @@
+{
+    "name": "esix.tags",
+    "version": "1.0.0",
+    "description": "NodeJS server that aggregates e621 tag data, including aliases and implications",
+    "main": "server.js",
+    "scripts": {
+        "start": "nodemon server.js",
+        "build": "npm-run-all eslint typescript",
+        "eslint": "eslint ./src/*.ts",
+        "typescript": "tsc"
+    },
+    "author": "bitWolfy",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "csv-parser": "^3.0.0",
+        "express": "^4.17.1",
+        "express-rate-limit": "^5.2.6"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.11",
+        "@typescript-eslint/eslint-plugin": "^4.22.0",
+        "@typescript-eslint/parser": "^4.22.0",
+        "eslint": "^7.25.0",
+        "nodemon": "^2.0.7",
+        "npm-run-all": "^4.1.5",
+        "typescript": "^4.2.4"
+    }
+}
