@@ -3,20 +3,28 @@ import fs from "fs";
 
 export class StoredData {
 
-    private static tags: DataStorage = {};
-    private static tagCount = 0;
-    private static tagIndex = [];
-    private static aliases: DataStorage = {};
+    private static tags: DataStorage = {};          // stored tag data
+    private static tagCount = 0;                    // total number of tags stored
+    private static tagIndex = [];                   // keys of `tag` for quicker lookups
+
+    private static aliasedTo: DataStorage = {};     // tag that the key is aliased to
+    private static aliasedBy: DataStorage = {};     // tags that are aliased to the key
     private static aliasCount = 0;
-    private static implications: DataStorage = {};
+
+    private static implications: DataStorage = {};  // tags that the key implies
+    private static implicatedBy: DataStorage = {};  // tags that imply the key
     private static implicationCount = 0;
 
     public static getTags(): DataStorage { return this.tags; }
-    public static getAliases(): DataStorage { return this.aliases; }
-    public static getImplications(): DataStorage { return this.implications; }
     public static countTags(): number { return this.tagCount; }
+
+    public static getAliasedTo(): DataStorage { return this.aliasedTo; }
+    public static getAliasedBy(): DataStorage { return this.aliasedBy; }
     public static countAliases(): number { return this.aliasCount; }
+
+    public static getImplications(): DataStorage { return this.implications; }
     public static countImplications(): number { return this.implicationCount; }
+
     public static indexTags(): string[] { return this.tagIndex; }
 
     public static async importTags(): Promise<number> {
@@ -40,34 +48,50 @@ export class StoredData {
     }
 
     public static async importAliases(): Promise<number> {
-        const results = {};
+        const aliasedTo = {};
+        const aliasesFor = {};
         return StoredData.importData(
             "aliases",
             ["id", "antecedent", "consequent", "created", "status"],
             (row) => {
                 if (row.status !== "active") return false;
-                results[row.antecedent] = row.consequent;
+
+                aliasedTo[row.antecedent] = row.consequent;
+
+                const data = aliasesFor[row.consequent] || [];
+                data.push(row.antecedent);
+                aliasesFor[row.consequent] = data;
+
                 return true;
             }).then((count) => {
-                StoredData.aliases = results;
+                StoredData.aliasedTo = aliasedTo;
+                StoredData.aliasedBy = aliasesFor;
                 this.aliasCount = count;
                 return count;
             });
     }
 
     public static async importImplications(): Promise<number> {
-        const results = {};
+        const implications = {};
+        const implicatedBy = {};
         return StoredData.importData(
             "implications",
             ["id", "antecedent", "consequent", "created", "status"],
             (row) => {
                 if (row.status !== "active") return false;
-                const data = results[row.antecedent] || [];
-                data.push(row.consequent);
-                results[row.antecedent] = data;
+
+                const data1 = implications[row.antecedent] || [];
+                data1.push(row.consequent);
+                implications[row.antecedent] = data1;
+
+                const data2 = implicatedBy[row.consequent] || [];
+                data2.push(row.antecedent);
+                implicatedBy[row.consequent] = data2;
+
                 return true;
             }).then((count) => {
-                StoredData.implications = results;
+                StoredData.implications = implications;
+                StoredData.implicatedBy = implicatedBy;
                 this.implicationCount = count;
                 return count;
             });
@@ -95,15 +119,22 @@ export class StoredData {
     public static lookup(lookup: string | string[], includeRelations = true): any {
         if (!Array.isArray(lookup)) lookup = [lookup];
 
+        // console.time("esix.lookup");
+
         const output = {};
         for (const key of lookup) {
             if (!StoredData.tags[key]) continue;
             const result = StoredData.tags[key];
 
-            const aliasLookup = StoredData.aliases[key];
-            if (aliasLookup) {
-                result["aliasof"] = aliasLookup;
-                if (includeRelations) lookup.push(aliasLookup);
+            const aliasedToLookup = StoredData.aliasedTo[key];
+            if (aliasedToLookup) {
+                result["aliasedTo"] = aliasedToLookup;
+                if (includeRelations) lookup.push(aliasedToLookup);
+            }
+
+            const aliasedByLookup = StoredData.aliasedBy[key];
+            if (aliasedByLookup) {
+                result["aliasedBy"] = aliasedByLookup;
             }
 
             const implicationsLookup = StoredData.implications[key];
@@ -115,8 +146,15 @@ export class StoredData {
                 }
             }
 
+            const implicatedByLookup = StoredData.implicatedBy[key];
+            if (implicatedByLookup) {
+                result["impliedBy"] = implicatedByLookup;
+            }
+
             output[key] = result;
         }
+
+        // console.timeEnd("esix.lookup");
 
         return output;
     }
