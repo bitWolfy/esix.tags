@@ -47,7 +47,7 @@ export class FindRoute extends PageRoute {
                         res.json({});
                         return;
                     }
-                    isResult = (tag) => { return regex.test(tag); }
+                    isResult = (tag): boolean => { return regex.test(tag); }
                     break;
                 default:
                     res.json({});
