@@ -27,6 +27,7 @@ export class FindRoute extends PageRoute {
 
             let categoryMatch = req.query.category ? parseInt(req.query.category) : null;
             if (Number.isNaN(categoryMatch)) categoryMatch = null;
+            const categoryMatchEnabled = categoryMatch !== null;
 
             let isResult: (tag: string) => boolean;
             switch (req.query.mode) {
@@ -54,25 +55,32 @@ export class FindRoute extends PageRoute {
                     return;
             }
 
-            const lookup = [];
+            // console.time("esix.perf");
+            const lookup = new Set<string>();
             let count = 0;
-            for (const [tag, data] of Object.entries(StoredData.getTags())) {
-
+            const tags = StoredData.indexTags();
+            const info = StoredData.getTags();
+            const tagCount = tags.length;
+            for (let index = 0; index < tagCount; index++) {
                 if (count >= 25000) break;
 
-                // Skip empty tags if needed
-                if (!showEmptyTags && data["count"] <= 0) continue;
+                const tag = tags[index];
+                if (isResult(tag) != invertResults) {
+                    const data = info[tag];
 
-                // Validate the tags
-                const validatorResponse = isResult(tag);
-                if ((validatorResponse && !invertResults) || (!validatorResponse && invertResults)) {
-                    if (categoryMatch !== null && categoryMatch !== data["category"]) continue;
-                    lookup.push(tag);
+                    // Skip empty tags
+                    if (!showEmptyTags && data["count"] <= 0) continue;
+
+                    // Skip if category does not match
+                    if (categoryMatchEnabled && categoryMatch !== data["category"]) continue;
+
+                    lookup.add(tag);
                     count++;
                 }
             }
+            // console.timeEnd("esix.perf");
 
-            const output = StoredData.lookup(lookup, includeRelations);
+            const output = StoredData.lookup(Array.from(lookup), includeRelations);
             res.json(output);
         });
     }

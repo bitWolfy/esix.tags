@@ -5,6 +5,7 @@ export class StoredData {
 
     private static tags: DataStorage = {};
     private static tagCount = 0;
+    private static tagIndex = [];
     private static aliases: DataStorage = {};
     private static aliasCount = 0;
     private static implications: DataStorage = {};
@@ -16,6 +17,7 @@ export class StoredData {
     public static countTags(): number { return this.tagCount; }
     public static countAliases(): number { return this.aliasCount; }
     public static countImplications(): number { return this.implicationCount; }
+    public static indexTags(): string[] { return this.tagIndex; }
 
     public static async importTags(): Promise<number> {
         const results = {};
@@ -32,6 +34,7 @@ export class StoredData {
             }).then((count) => {
                 StoredData.tags = results;
                 this.tagCount = count;
+                this.tagIndex = Object.keys(StoredData.tags);
                 return count;
             });
     }
