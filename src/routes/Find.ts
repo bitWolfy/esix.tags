@@ -56,7 +56,7 @@ export class FindRoute extends PageRoute {
 
             const lookup = [];
             let count = 0;
-            for (const [tag, data] of Object.entries(StoredData.tags)) {
+            for (const [tag, data] of Object.entries(StoredData.getTags())) {
 
                 if (count >= 25000) break;
 

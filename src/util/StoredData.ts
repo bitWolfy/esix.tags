@@ -3,9 +3,19 @@ import fs from "fs";
 
 export class StoredData {
 
-    public static tags: DataStorage = {};
-    public static aliases: DataStorage = {};
-    public static implications: DataStorage = {};
+    private static tags: DataStorage = {};
+    private static tagCount = 0;
+    private static aliases: DataStorage = {};
+    private static aliasCount = 0;
+    private static implications: DataStorage = {};
+    private static implicationCount = 0;
+
+    public static getTags(): DataStorage { return this.tags; }
+    public static getAliases(): DataStorage { return this.aliases; }
+    public static getImplications(): DataStorage { return this.implications; }
+    public static countTags(): number { return this.tagCount; }
+    public static countAliases(): number { return this.aliasCount; }
+    public static countImplications(): number { return this.implicationCount; }
 
     public static async importTags(): Promise<number> {
         const results = {};
@@ -18,8 +28,10 @@ export class StoredData {
                     category: parseInt(row.cat),
                     count: parseInt(row.num),
                 };
+                return true;
             }).then((count) => {
                 StoredData.tags = results;
+                this.tagCount = count;
                 return count;
             });
     }
@@ -30,10 +42,12 @@ export class StoredData {
             "aliases",
             ["id", "antecedent", "consequent", "created", "status"],
             (row) => {
-                if (row.status !== "active") return;
+                if (row.status !== "active") return false;
                 results[row.antecedent] = row.consequent;
+                return true;
             }).then((count) => {
                 StoredData.aliases = results;
+                this.aliasCount = count;
                 return count;
             });
     }
@@ -44,17 +58,19 @@ export class StoredData {
             "implications",
             ["id", "antecedent", "consequent", "created", "status"],
             (row) => {
-                if (row.status !== "active") return;
+                if (row.status !== "active") return false;
                 const data = results[row.antecedent] || [];
                 data.push(row.consequent);
                 results[row.antecedent] = data;
+                return true;
             }).then((count) => {
                 StoredData.implications = results;
+                this.implicationCount = count;
                 return count;
             });
     }
 
-    private static async importData(type: string, headers: string[], append: (row: any) => void): Promise<number> {
+    private static async importData(type: string, headers: string[], append: (row: any) => boolean): Promise<number> {
         return new Promise((resolve) => {
             let count = 0;
             fs.createReadStream(`./data/${type}.csv`)
@@ -63,8 +79,8 @@ export class StoredData {
                     headers: headers,
                 }))
                 .on("data", (row) => {
-                    append(row);
-                    count++;
+                    if (append(row))
+                        count++;
                 })
                 .on("end", () => {
                     console.log(`processed ${count} ${type}`);
