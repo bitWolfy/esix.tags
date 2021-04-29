@@ -10,7 +10,7 @@ export class VersionChecker {
 
         const now = new Date();
         VersionChecker.lastUpdate = new Date(data);
-        VersionChecker.nextUpdate = new Date(now.getFullYear() + "-" + now.getMonth() + "-" + now.getDate() + " 15:00 GMT");
+        VersionChecker.nextUpdate = new Date(now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + " 15:00 GMT");
         VersionChecker.nextUpdate.setDate(VersionChecker.nextUpdate.getDate() + 1);
     }
 
