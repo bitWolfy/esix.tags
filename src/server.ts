@@ -20,7 +20,7 @@ const rateLimiter = rateLimit({
 });
 
 // Register routes
-for (const route of Routes)
+for (const route of pageRoutes)
     new route(app, rateLimiter);
 
 

@@ -3,7 +3,7 @@ import { FindRoute } from "./Find";
 import { InfoRoute } from "./Info";
 import { ListRoute } from "./List";
 
-export const Routes: any[] = [
+export const pageRoutes: any[] = [
     DefaultRoute,
     ListRoute,
     FindRoute,
