@@ -13,7 +13,9 @@ export class ListRoute extends PageRoute {
                 return;
             }
 
-            const output = StoredData.lookup(req.query.name.split(","));
+            const includeRelations = req.query.relations == "true";
+
+            const output = StoredData.lookup(req.query.name.split(","), includeRelations);
             res.json(output);
         });
 
