@@ -1,13 +1,13 @@
-import { StoredData } from "../util/StoredData";
-import { TagValidator } from "../util/TagValidator";
-import { PageRoute } from "./_PageRoute";
+import { StoredData } from "../../util/StoredData";
+import { TagValidator } from "../../util/TagValidator";
+import { PageRoute } from "../_PageRoute";
 
 export class FindRoute extends PageRoute {
 
     public constructor(app, rateLimiter) {
         super(app, rateLimiter);
 
-        app.get('/find', rateLimiter, (req, res) => {
+        app.get('/tags/find.json', rateLimiter, (req, res) => {
             // console.log(req.query.name);
             if (!req.query.mode) {
                 res.json({});

@@ -1,8 +1,8 @@
 import { DefaultRoute } from "./Default";
-import { FindRoute } from "./Find";
-import { InfoRoute } from "./Info";
-import { ListRoute } from "./List";
+import { FindRoute } from "./tags/TagsFind";
 import { TagsIndex } from "./tags/TagsIndex";
+import { InfoRoute } from "./tags/TagsInfo";
+import { ListRoute } from "./tags/TagsList";
 
 export const pageRoutes: any[] = [
     DefaultRoute,
