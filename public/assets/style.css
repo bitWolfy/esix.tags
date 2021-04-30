@@ -1,0 +1,31 @@
+body {
+    background: #020f23;
+    color: white;
+}
+
+a, a:link {
+    color: #eac57e;
+    text-decoration: none;
+}
+a:hover, a:active {
+    color: #ffb836;
+}
+
+logo {
+    display: block;
+    font-size: 3.5rem;
+    font-family: 'Pacifico', cursive;
+    color: goldenrod;
+}
+
+.content {
+    background: #152f56;
+}
+
+pre.example {
+    max-width: 34rem;
+    overflow: hidden;
+    background: #ffffff10;
+    padding: 0.5rem;
+    border-radius: 1rem;
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+    <head>
+        <title>ESix.Tags - A tag relationship API for e621</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+
+        <script src="https://kit.fontawesome.com/91ce88869a.js" crossorigin="anonymous"></script>
+
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@100&display=swap" rel="stylesheet">
+
+        <link href="/static/assets/style.css" rel="stylesheet">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div class="container content">
+            <header class="py-3">
+                <logo><a href="/">ESix.API</a></logo>
+            </header>
+        </div>
+
+        <div class="container">&nbsp;</div>
+
+        <div class="container content">
+            <br />
+            <h2>Tag Endpoints</h2>
+            <p>
+                This API provides several endpoints that allow you to fetch the tag structure with just one request.
+            </p>
+            <p>
+                All of these endpoints are rate-limited: you may only send one request per second, and no more than 30 requests per minute.<br />
+                Generally speaking, you should avoid sending a large number of requests over a sustained period.
+            </p>
+
+            <h3>Synchronization</h3>
+            <p>
+                Note that this API does not return real-time information.
+                Insted, it fetches the information daily from the publicly available <a href="https://e621.net/db_export/" target="_blank">database exports</a>.
+                This means that any data you receive from this API can be up to 24 hours out of date.
+            </p>
+            <p>
+                If this is not acceptable for you, you are encouraged to instead use e621's native API instead, or to supplement its data with the information from this resource.
+            </p>
+
+            <h4>List</h4>
+            <div class="row">
+                <div class="col">
+                    <p>
+                        The most basic endpoint is <code>/tags/list.json</code>.<br />
+                        It returns information on requested tags: the post count, category, aliases and implications.
+                    </p>
+                    <p>
+                        Parameters:
+                        <ul>
+                            <li><code>name</code> tag names, comma-separated. Exact matches only</li>
+                            <li><code>relations</code> if true, also returns tag data for aliases and implications</li>
+                        </ul>
+                    </p>
+                    <p>
+                        Returns:
+                        <ul>
+                            <li><code>id</code> numeric ID of the tag</li>
+                            <li><code>category</code> ID of the tag category: 0 for general, 1 for artist, and so on</li>
+                            <li><code>count</code> Number of posts that contain this tag</li>
+                            <li><code>aliasedTo</code> The tag to which the looked up tag is aliased to</li>
+                            <li><code>aliasedBy</code> Array of tags that are aliased to the looked up tag</li>
+                            <li><code>implies</code> Array of tags that the looked up tag implies</li>
+                            <li><code>impliedBy</code> Array of tags that imply the looked up tag</code></li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="col">
+                    Example: <code>/tags/list?name=mammal,solo,unicorn</code>
+                    <pre class="example">
+{
+  "mammal": {
+    "id": 12054,
+    "category": 5,
+    "count": 1770867,
+    "aliasedBy": ["mammals", "ungulate", "unguligrade", "mammale", "mammalian", "mammal_(species)", "panda_panda"],
+    "impliedBy": ["lagomorph", "rodent", "cetacean", "human", "mustelid", "marsupial", "primate", "camelid", "monotreme", "tapir", "pangolin", "aardvark", "viverrid", "pronghorn", "pinniped", "herpestid", "procyonid", "mephitid", "proboscidean", "giraffid", "euplerid", "afrosoricid", "eulipotyphlan", "cetancodontamorph", "sirenian", "xenarthran", "hippopotamid", "ailurid", "rhinocerotoid", "chiropteran", "hyaenid", "felid", "canid", "moschid", "tragulid", "cervid", "suina", "ursid", "amphicyonid", "coryphodontid", "toxodontid", "oxyaenid", "eutriconodont", "entelodontid", "hyaenodontid", "entelodont", "bovid", "equid", "minkmen_(one_piece)", "lombax", "moogle", "yinglet", "sengi", "foo_dog", "mythological_baku", "hyrax", "banxring", "colugo", "citra", "aldgoat", "mammal_humanoid", "mammal_taur", "betelgeusian", "galka", "ewok", "litopteran", "cazar_(ratchet_and_clank)"]
+  },
+  "solo": {
+    "id": 28,
+    "category": 0,
+    "count": 1158308,
+    "aliasedBy": ["alone", "single"]
+  },
+  "unicorn": {
+    "id": 694,
+    "category": 5,
+    "count": 83025,
+    "aliasedBy": ["zebracorn", "unicorn_pony"],
+    "implies": ["horn", "equid", "equine"],
+    "impliedBy": ["unicorn_taur"]
+  }
+}</pre>
+                </div>
+            </div>
+            <br />
+
+            <h4>Find</h4>
+            <div class="row">
+                <div class="col">
+                    <p>
+                        The <code>/tags/find.json</code> endpoint allows you to search tags using regular expressions.
+                        It returns data in the same format as <code>list.json</code>.
+                    </p>
+                    <p>
+                        Parameters:
+                        <ul>
+                            <li>
+                                <code>mode</code> one of the pre-built modes that filter the tag List
+                                <ul>
+                                    <li><code>unicode</code> tags that contain non-ASCII characters</li>
+                                    <li><code>invalid</code> tags that contain <b>any</b> invalid characters, based on e621's requirements</li>
+                                    <li><code>japanese</code> misleading name - returns tags that contain any chinese, japanese, or korean characters</li>
+                                    <li><code>uppercase</code> tags with uppercase letters - usually glitched out unicode characters</li>
+                                    <li><code>pattern</code> regex search - see below</li>
+                                </ul>
+                            </li>
+                            <li><code>pattern</code> regular expression, only works if the corresponding mode is enabled. Must be valid regex, or no results will be returned</li>
+                            <li><code>empty</code> unless this is set to true, tags with 0 posts will not be displayed</li>
+                            <li><code>invert</code> will return tags that <b>don't</b> match the current mode or pattern</li>
+                            <li><code>category</code> will filter out any tags that do not have this category ID</li>
+                            <li><code>relations</code> if true, also returns tag data for aliases and implications</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="col">
+                    Example: <code>/tags/find?mode=pattern&pattern=^wolf</code>
+                    <pre class="example">
+{
+  "wolf": {
+    "id": 77,
+    "category": 5,
+    "count": 152443,
+    "aliasedBy": ["lupine", "wolves", "wolfess", "wolve", "winged_wolf", "black_wolf", "white_wolf", "wolfess_(species)", "saber_wolf", "sabertooth_wolf", "angel_wolf", "angelic_wolf", "whitewolf_(species)", "gray_wolf", "grey_wolf", "timber_wolf", "north_american_grey_wolf", "merky_taiga_wolf", "timberwolf", "ice_wolf_(species)", "anthro_wolf"],
+    "implies": ["canis"],
+    "impliedBy": ["red_wolf", "arctic_wolf", "sourou_cerulean_wolf", "eurasian_wolf", "arabian_wolf", "iberian_wolf", "mexican_wolf", "japanese_wolf", "alaskan_tundra_wolf", "italian_wolf", "tundra_wolf", "eastern_wolf", "mississippi_valley_wolf", "florida_black_wolf", "wolf_taur", "hokkaidō_wolf"]
+  },
+  "wolfblade": {
+    "id": 953,
+    "category": 1,
+    "count": 1233
+  },
+  "wolfyama": {
+    "id": 3585,
+    "category": 1,
+    "count": 105
+  }
+}</pre>
+                </div>
+            </div>
+            <br />
+            
+            <h4>Info</h4>
+            <div class="row">
+                <div class="col">
+                    <p>
+                        Simple endpoint, with no parameters.
+                    </p>
+                    <p>
+                        Returns:
+                        <ul>
+                            <li><code>tags</code> total number of stored tags</li>
+                            <li><code>aliases</code> number of <b>active</b> aliases</li>
+                            <li><code>implications</code> number of <b>active</b> implications</li>
+                            <li><code>last</code> last time the server was synchronized with e621</li>
+                            <li><code>next</code> next time the server will be synchronized with e621</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="col">
+                    Example: <code>/tags/find?mode=pattern&pattern=^wolf</code>
+                    <pre class="example">
+{
+  "tags": 826471,
+  "aliases": 44194,
+  "implications": 30688,
+  "last": "2021-04-29T15:59:03.000Z",
+  "next": "2021-04-30T15:00:00.000Z"
+}</pre>
+                </div>
+            </div>
+            <br />
+
+        </div>
+    </body>
+</html>

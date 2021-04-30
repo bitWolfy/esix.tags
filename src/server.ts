@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { Routes } from "./routes/_Routes";
+import { pageRoutes } from "./routes/_Routes";
 import { StoredData } from "./util/StoredData";
 import { VersionChecker } from "./util/VersionChecker";
 
@@ -20,6 +20,7 @@ const rateLimiter = rateLimit({
 });
 
 // Register routes
+app.use("/static", express.static("public"));
 for (const route of pageRoutes)
     new route(app, rateLimiter);
 
