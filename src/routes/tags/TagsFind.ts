@@ -1,4 +1,6 @@
-import { StoredData } from "../../util/StoredData";
+import { Configuration } from "../../util/Configuration";
+import { TagData } from "../../util/Database";
+import { StoredData } from "../../util/DatabaseLookup";
 import { TagValidator } from "../../util/TagValidator";
 import { PageRoute } from "../_PageRoute";
 
@@ -7,7 +9,7 @@ export class FindRoute extends PageRoute {
     public constructor(app, rateLimiter) {
         super(app, rateLimiter);
 
-        app.get('/tags/find.json', rateLimiter, (req, res) => {
+        app.get('/tags/find.json', rateLimiter, async (req, res) => {
             // console.log(req.query.name);
             if (!req.query.mode) {
                 res.json({});
@@ -55,32 +57,31 @@ export class FindRoute extends PageRoute {
                     return;
             }
 
-            // console.time("esix.perf");
-            const lookup = new Set<string>();
+            // console.time("esix.find");
+            const lookup = new Set<TagData>();
             let count = 0;
-            const tags = StoredData.indexTags();
-            const info = StoredData.getTags();
-            const tagCount = tags.length;
-            for (let index = 0; index < tagCount; index++) {
+            const tagsList = (req.query.mode == "pattern" && Configuration.dbRegExpEnabled)
+                ? await StoredData.findTags(regex, showEmptyTags)
+                : await StoredData.getTagList(showEmptyTags);
+            for (let index = 0; index < tagsList.length; index++) {
                 if (count >= 25000) break;
 
-                const tag = tags[index];
-                if (isResult(tag) != invertResults) {
-                    const data = info[tag];
+                const tag = tagsList[index];
+                if (isResult(tag.name) != invertResults) {
 
                     // Skip empty tags
-                    if (!showEmptyTags && data["count"] <= 0) continue;
+                    if (!showEmptyTags && tag.count <= 0) continue;
 
                     // Skip if category does not match
-                    if (categoryMatchEnabled && categoryMatch !== data["category"]) continue;
+                    if (categoryMatchEnabled && categoryMatch !== tag.category) continue;
 
                     lookup.add(tag);
                     count++;
                 }
             }
-            // console.timeEnd("esix.perf");
 
-            const output = StoredData.lookup(Array.from(lookup), includeRelations);
+            const output = await StoredData.runData(Array.from(lookup), includeRelations);
+            // console.timeEnd("esix.find");
             res.json(output);
         });
     }

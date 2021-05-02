@@ -2,9 +2,12 @@ import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import { pageRoutes } from "./routes/_Routes";
-import { StoredData } from "./util/StoredData";
+import { Database } from "./util/Database";
 import { VersionChecker } from "./util/VersionChecker";
 
+
+// Initialize database connection
+new Database();
 
 // Set up the server
 const app = express();
@@ -38,13 +41,6 @@ const server = app.listen(3001, "localhost", () => {
         console.log("Updating cache:", VersionChecker.lastUpdate);
         cacheVersion = VersionChecker.lastUpdate.getTime();
 
-        Promise.all([
-            StoredData.importTags(),
-            StoredData.importAliases(),
-            StoredData.importImplications(),
-        ]).then(() => {
-            console.log("Cache updated");
-        });
     }
     setInterval(() => { reloadData(); }, 60000);
     reloadData();
