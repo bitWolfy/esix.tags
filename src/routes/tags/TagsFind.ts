@@ -64,7 +64,7 @@ export class FindRoute extends PageRoute {
                 ? await StoredData.findTags(regex, showEmptyTags)
                 : await StoredData.getTagList(showEmptyTags);
             for (let index = 0; index < tagsList.length; index++) {
-                if (count >= 25000) break;
+                if (count >= Configuration.tagResponseLimit) break;
 
                 const tag = tagsList[index];
                 if (isResult(tag.name) != invertResults) {
