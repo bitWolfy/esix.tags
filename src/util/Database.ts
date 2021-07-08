@@ -5,12 +5,16 @@ export class Database {
 
     private static db: sqlite3.Database;
 
-    public constructor() {
+    public static connect(): boolean {
+        const hadConnection = typeof Database.db !== "undefined";
 
+        if (hadConnection) Database.db.close();
         Database.db = new (sqlite3.verbose()).Database(`./data/` + Configuration.dbFileName, (err) => {
             if (err) console.log("error", err);
             else console.log("connected");
         });
+
+        return hadConnection
     }
 
     private static async all(sql: string, params?: any[]): Promise<any> {

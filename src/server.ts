@@ -7,7 +7,7 @@ import { VersionChecker } from "./util/VersionChecker";
 
 
 // Initialize database connection
-new Database();
+Database.connect();
 
 // Set up the server
 const app = express();
@@ -40,7 +40,7 @@ const server = app.listen(3001, "localhost", () => {
         if (cacheVersion == VersionChecker.lastUpdate.getTime()) return;
         console.log("Updating cache:", VersionChecker.lastUpdate);
         cacheVersion = VersionChecker.lastUpdate.getTime();
-
+        Database.connect();
     }
     setInterval(() => { reloadData(); }, 60000);
     reloadData();
