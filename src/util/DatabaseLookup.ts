@@ -116,6 +116,25 @@ export class StoredData {
         return Database.findTagRegex(regex, showEmptyTags);
     }
 
+    /**
+     * Searches for provided tags and returns their tag count
+     * @param lookup Tags to look up
+     * @returns Tag counts
+     */
+    public static async count(lookup: string | string[]): Promise<DataCountSet> {
+
+        // Desperate attempt to prevent this from fucking up the DB search
+        if (!lookup) return {};
+        if (!Array.isArray(lookup)) lookup = [lookup];
+        if (lookup.length == 0) return {};
+
+        // First search - looks up the data on the specified tags
+        const rawData = await Database.lookupCount(lookup);
+        const result = {};
+        for (const entry of Object.values(rawData))
+            result[entry.name] = entry.count;
+        return result;
+    }
 }
 
 interface DataOutputSet {
@@ -129,4 +148,8 @@ interface DataOutput {
     aliasedBy?: string[];
     implies?: string[];
     impliedBy?: string[];
+}
+
+interface DataCountSet {
+    [tag: string]: number;
 }

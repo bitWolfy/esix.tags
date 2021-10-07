@@ -46,6 +46,10 @@ export class Database {
         return this.all(`SELECT "name", "category", "count" FROM "tags" WHERE [name] IN (${Database.generateWhere(names.length)});`, names);
     }
 
+    public static async lookupCount(names: string[]): Promise<TagDataSlim[]> {
+        return this.all(`SELECT "name", "count" FROM "tags" WHERE [name] IN (${Database.generateWhere(names.length)});`, names);
+    }
+
     public static async getAllTags(showEmptyTags = false): Promise<TagData[]> {
         return this.all(`SELECT "name", "category", "count" FROM "tags" ${showEmptyTags ? "" : `WHERE "count" > 0`};`);
     }
@@ -100,10 +104,13 @@ export class Database {
 
 }
 
-export interface TagData {
+export interface TagDataSlim {
     name: string;
-    category: number;
     count: number;
+}
+
+export interface TagData extends TagDataSlim {
+    category: number;
 }
 
 export interface AliasData {
